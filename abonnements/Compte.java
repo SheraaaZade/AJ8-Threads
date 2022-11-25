@@ -16,12 +16,11 @@ public class Compte {
         historique = new ArrayList<>();
     }
 
-    public boolean depenser(Depense depense) {
-        if (solde<depense.getMontant())
+    public synchronized boolean depenser(Depense depense) {
+        if (solde < depense.getMontant())
             return false;
-
-        solde = getSolde() - depense.getMontant();
-        historique.add(depense);
+            solde = getSolde() - depense.getMontant();
+            historique.add(depense);
         return true;
     }
 
@@ -38,7 +37,7 @@ public class Compte {
 
     public void verifier() {
         double total = 0;
-        for(Depense d : historique) {
+        for (Depense d : historique) {
             System.out.println(d.getRaison() + " : -" + d.getMontant());
             total += d.getMontant();
         }

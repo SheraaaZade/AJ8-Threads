@@ -9,7 +9,7 @@ public class Sorter {
 	private int[] table;
 	// Slice of the table to sort
 	private int start, end;
-	
+	private int nbThreads;
 	public Sorter(int[] table) {
 		this(table, 0, table.length - 1);
 	}
@@ -22,10 +22,11 @@ public class Sorter {
 
 	/**
 	 * Sort a table of int in ascending order
-	 * 
+	 *
 	 * @param table the table to sort
 	 */
-	public void sort() {
+	public void sort(int[] table) {
+
 		this.sort(this.start, this.end);
 	}
 
@@ -42,8 +43,18 @@ public class Sorter {
 			}
 		} else {
 			int milieu = start + (end - start) / 2;
-			sort(start, milieu);
-			sort(milieu + 1, end);
+//			sort(start, milieu);
+//			sort(milieu + 1, end);
+			sortedThread th1 = new sortedThread(start, milieu);
+			sortedThread th2 = new sortedThread(milieu+1, end);
+			th1.start();
+			th2.start();
+			try {
+				th1.join();
+				th2.join();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 			this.mergeSort(start, end);
 		}
 	}
@@ -95,6 +106,23 @@ public class Sorter {
 		// Copy tMerge into the table
 		for (int i = 0, j = start; i <= end - start;) {
 			table[j++] = tMerge[i++];
+		}
+	}
+
+	public class sortedThread extends Thread{
+		private int start;
+		private int end;
+
+		public sortedThread(int start, int end) {
+			this.start = start;
+			this.end = end;
+		}
+
+		@Override
+		public void run(){
+
+			sort(this.start, this.end);
+
 		}
 	}
 
